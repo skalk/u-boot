@@ -644,7 +644,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * updated every 1 ms within the HCCA structure in SDRAM! For more
 	 * details see the OpenHCI specification.
 	 */
-	usb_stop();
+	//usb_stop();
 #endif
 
 	ret = bootm_load_os(images.os, &load_end, 1);

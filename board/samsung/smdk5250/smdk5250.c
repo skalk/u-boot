@@ -256,7 +256,7 @@ void arch_preboot_os(void)
 	 * and we rely on board-specific logic to put a board-specific monitor
 	 * in place for stuff like L2 cache maintenance and power management.
 	 */
-	enter_ns();
+//	enter_ns();
 
 	/*
 	 * Enter Hyp mode immediately before booting the kernel to allow
@@ -265,5 +265,5 @@ void arch_preboot_os(void)
 	 *
 	 * Without further ado...
 	 */
-	enter_hyp();
+//	enter_hyp();
 }

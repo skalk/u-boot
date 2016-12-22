@@ -117,7 +117,8 @@
 #define CONFIG_USB_EHCI_EXYNOS
 #define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
-#define CONFIG_PREBOOT                  "usb start"
+
+/* define CONFIG_PREBOOT                  "usb start" */
 
 /* SYSFLAGS register */
 #define CONFIG_SYSFLAGS_ADDR	0x02020000
@@ -136,7 +137,7 @@
 /* secondary SMP pens */
 #define CONFIG_SPL_SMP_PEN	(CONFIG_SPL_TEXT_BASE + CONFIG_SPL_MAX_SIZE - 8)
 
-#define CONFIG_BOOTCOMMAND	"mmc read 40007000 451 2000; bootm 40007000"
+#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x50000000 uImage; bootm 0x50000000;"
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/

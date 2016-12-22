@@ -41,11 +41,11 @@ lowlevel_init:
 
 	/* Secondary CPU */
 	bl	arch_timer_init
-	bl	non_secure_init
+/*	bl	non_secure_init
 	bl	monitor_init
 	bl	enter_ns
-	bl	enter_hyp
-	b	enter_smp_pen
+	bl	enter_hyp */
+	b	enter_smp_pen 
 
 	/*
 	 * We entered the SMP pen above, and we expect kernels to write an

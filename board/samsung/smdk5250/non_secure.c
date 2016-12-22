@@ -59,6 +59,7 @@ static void write_nsacr(unsigned long val)
 
 void non_secure_init(void)
 {
+#if 0
 	unsigned long addr, type, num_regs;
 	unsigned long nsacr, ctrl;
 	int i;
@@ -93,4 +94,5 @@ void non_secure_init(void)
 	ctrl = readl(addr);
 	ctrl = (ctrl & ~0x1) | 0x2;
 	writel(ctrl | 0x1, addr);
+#endif
 }
