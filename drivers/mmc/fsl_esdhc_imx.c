@@ -1389,6 +1389,8 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	struct mmc *mmc;
 	int ret;
 
+	printf("(imx) fsl_esdhc_initialize: %p\n",cfg);
+
 	if (!cfg)
 		return -EINVAL;
 
@@ -1437,6 +1439,8 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 int fsl_esdhc_mmc_init(bd_t *bis)
 {
 	struct fsl_esdhc_cfg *cfg;
+
+	printf("fsl_esdhc_mmc_init\n");
 
 	cfg = calloc(sizeof(struct fsl_esdhc_cfg), 1);
 	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
@@ -1501,6 +1505,8 @@ static int fsl_esdhc_probe(struct udevice *dev)
 #endif
 	int ret;
 
+	printf("(imx) fsl_esdhc_probe\n");
+
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
@@ -1526,22 +1532,26 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	else
 		priv->c.bus_width = 1;
 
+	// FIXME hack
+	priv->c.bus_width = 4;
+
 	val = fdtdec_get_int(fdt, node, "fsl,tuning-step", 1);
 	priv->tuning_step = val;
 	val = fdtdec_get_int(fdt, node, "fsl,tuning-start-tap",
-			     ESDHC_TUNING_START_TAP_DEFAULT);
+					 ESDHC_TUNING_START_TAP_DEFAULT);
 	priv->tuning_start_tap = val;
 	val = fdtdec_get_int(fdt, node, "fsl,strobe-dll-delay-target",
-			     ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_DEFAULT);
+					 ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_DEFAULT);
 	priv->strobe_dll_delay_target = val;
 
-	if (dev_read_bool(dev, "non-removable")) {
+	// FIXME hack
+	if (1 || dev_read_bool(dev, "non-removable")) {
 		priv->non_removable = 1;
-	 } else {
+	} else {
 		priv->non_removable = 0;
 #ifdef CONFIG_DM_GPIO
 		gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
-				     GPIOD_IS_IN);
+						 GPIOD_IS_IN);
 #endif
 	}
 
