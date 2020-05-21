@@ -95,7 +95,7 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET               (-CONFIG_ENV_SIZE)
-#define CONFIG_SYS_MMC_ENV_DEV		0	/* USDHC1 */
+#define CONFIG_SYS_MMC_ENV_DEV		1	/* USDHC1 */
 #define CONFIG_SYS_MMC_ENV_PART         1	/* mmcblk0boot0 */
 
 /* Size of malloc() pool */
@@ -105,7 +105,9 @@
 #define PHYS_SDRAM                      0x40000000
 
 #define CONFIG_SYS_MEMTEST_START    PHYS_SDRAM
-#define CONFIG_SYS_MEMTEST_END      (CONFIG_SYS_MEMTEST_START + 0x40000000u)
+#define CONFIG_SYS_MEMTEST_END      (CONFIG_SYS_MEMTEST_START + 0x40000000u) // 1 GB?!
+
+/* FIXME actual memory is in CONFIG_SYS_EXTRA_OPTIONS (DDR_MB) */
 
 #define CONFIG_BAUDRATE			115200
 
@@ -122,7 +124,7 @@
 
 #define CONFIG_FSL_USDHC
 
-#define CONFIG_SYS_FSL_USDHC_NUM	1
+#define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
@@ -206,7 +208,7 @@
 #define SYS_AUXCORE_BOOTDATA_DDR	0x80000000
 #define SYS_AUXCORE_BOOTDATA_TCM	0x007E0000
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+/*#define CONFIG_EXTRA_ENV_SETTINGS             \
 	"console=" BD_CONSOLE "\0" \
 	"env_dev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"env_part=" __stringify(CONFIG_SYS_MMC_ENV_PART) "\0" \
@@ -245,7 +247,7 @@
 		"setenv ipaddr 10.0.0.2; " \
 		"setenv netmask 255.255.255.0; " \
 		"setenv serverip 10.0.0.1;\0" \
-	BOOTENV
+    BOOTENV*/
 
 /*
  * PCI express
