@@ -924,3 +924,55 @@ U_BOOT_CMD(
 	""
 );
 #endif
+
+int mx8mq_showclocks() {
+	u32 freq;
+
+	freq = decode_frac_pll(ARM_PLL_CLK);
+	printf("ARM_PLL    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_800M_CLK);
+	printf("SYS_PLL1_800    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_400M_CLK);
+	printf("SYS_PLL1_400    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_266M_CLK);
+	printf("SYS_PLL1_266    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_200M_CLK);
+	printf("SYS_PLL1_200    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_160M_CLK);
+	printf("SYS_PLL1_160    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_133M_CLK);
+	printf("SYS_PLL1_133    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_100M_CLK);
+	printf("SYS_PLL1_100    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_80M_CLK);
+	printf("SYS_PLL1_80    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL1_40M_CLK);
+	printf("SYS_PLL1_40    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_1000M_CLK);
+	printf("SYS_PLL2_1000    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_500M_CLK);
+	printf("SYS_PLL2_500    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_333M_CLK);
+	printf("SYS_PLL2_333    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_250M_CLK);
+	printf("SYS_PLL2_250    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_200M_CLK);
+	printf("SYS_PLL2_200    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_166M_CLK);
+	printf("SYS_PLL2_166    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_125M_CLK);
+	printf("SYS_PLL2_125    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_100M_CLK);
+	printf("SYS_PLL2_100    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL2_50M_CLK);
+	printf("SYS_PLL2_50    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(SYSTEM_PLL3_CLK);
+	printf("SYS_PLL3       %8d MHz\n", freq / 1000000);
+	freq = mxc_get_clock(UART1_CLK_ROOT);
+	printf("UART1          %8d MHz\n", freq / 1000000);
+	freq = mxc_get_clock(USDHC1_CLK_ROOT);
+	printf("USDHC1         %8d MHz\n", freq / 1000000);
+	freq = mxc_get_clock(QSPI_CLK_ROOT);
+	printf("QSPI           %8d MHz\n", freq / 1000000);
+	return 0;
+}

@@ -54,6 +54,8 @@ int board_mmc_getcd(struct mmc *mmc)
 	switch (cfg->esdhc_base) {
 	case USDHC1_BASE_ADDR:
 		return 1;
+	case USDHC2_BASE_ADDR:
+		return 1;
 	}
 	return 0;
 }
@@ -61,6 +63,10 @@ int board_mmc_getcd(struct mmc *mmc)
 #define USDHC_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE | \
 			 PAD_CTL_FSEL2)
 #define USDHC_GPIO_PAD_CTRL (PAD_CTL_PUE | PAD_CTL_DSE1)
+
+#define USDHC2_CD_GPIO	IMX_GPIO_NR(2, 12)
+#define USDHC1_PWR_GPIO IMX_GPIO_NR(2, 10)
+#define USDHC2_PWR_GPIO IMX_GPIO_NR(2, 19)
 
 static iomux_v3_cfg_t const init_pads[] = {
 #define GP_I2C1_PCA9546_RESET		IMX_GPIO_NR(1, 4)
@@ -78,11 +84,22 @@ static iomux_v3_cfg_t const init_pads[] = {
 	IMX8MQ_PAD_SD1_DATA7__USDHC1_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 #define GP_EMMC_RESET	IMX_GPIO_NR(2, 10)
 	IMX8MQ_PAD_SD1_RESET_B__GPIO2_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+  
+	IMX8MQ_PAD_SD2_CLK__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL), /* 0xd6 */
+	IMX8MQ_PAD_SD2_CMD__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL), /* 0xd6 */
+	IMX8MQ_PAD_SD2_DATA0__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL), /* 0xd6 */
+	IMX8MQ_PAD_SD2_DATA1__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL), /* 0xd6 */
+	IMX8MQ_PAD_SD2_DATA2__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL), /* 0x16 */
+	IMX8MQ_PAD_SD2_DATA3__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL), /* 0xd6 */
+	IMX8MQ_PAD_SD2_CD_B__GPIO2_IO12 | MUX_PAD_CTRL(USDHC_GPIO_PAD_CTRL),
+	IMX8MQ_PAD_SD2_RESET_B__GPIO2_IO19 | MUX_PAD_CTRL(USDHC_GPIO_PAD_CTRL),
 };
 
 static struct fsl_esdhc_cfg usdhc_cfg[] = {
 	{.esdhc_base = USDHC1_BASE_ADDR, .bus_width = 8,
 			.gp_reset = GP_EMMC_RESET},
+	{.esdhc_base = USDHC2_BASE_ADDR, .bus_width = 1,
+			.gp_reset = USDHC2_PWR_GPIO},
 };
 
 int board_mmc_init(bd_t *bis)
@@ -103,12 +120,20 @@ int board_mmc_init(bd_t *bis)
 			udelay(500);
 			gpio_direction_output(GP_EMMC_RESET, 1);
 			break;
+		case 1:
+			usdhc_cfg[1].sdhc_clk = mxc_get_clock(USDHC2_CLK_ROOT);
+			gpio_request(GP_EMMC_RESET, "usdhc2_reset");
+			gpio_direction_output(USDHC2_PWR_GPIO, 0);
+			udelay(500);
+			gpio_direction_output(USDHC2_PWR_GPIO, 1);
+			break;
 		default:
 			printf("Warning: you configured more USDHC controllers"
 				"(%d) than supported by the board\n", i + 1);
 			return -EINVAL;
 		}
 
+		printf("board_mmc_init: %d\n",i);
 		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
 		if (ret)
 			return ret;
@@ -192,10 +217,24 @@ int board_fit_config_name_match(const char *name)
 {
 	/* Just empty function now - can't decide what to choose */
 	debug("%s: %s\n", __func__, name);
-
-	return 0;
+	return 0; 
 }
 #endif
+
+static void hexdump(unsigned char *buf, int len)
+{
+	int i;
+
+	for (i = 0; i < len; i++) {
+		if ((i % 16) == 0)
+			printf("%s%08x: ", i ? "\n" : "",
+							(unsigned int)&buf[i]);
+		printf("%02x ", buf[i]);
+	}
+	printf("\n");
+}
+
+int mx8mq_showclocks();
 
 void board_init_f(ulong dummy)
 {
@@ -206,6 +245,7 @@ void board_init_f(ulong dummy)
 
 	arch_cpu_init();
 
+	// without this, no uart output
 	board_early_init_f();
 	init_uart_clk(0);
 	timer_init();
@@ -215,13 +255,14 @@ void board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
-	ret = spl_init();
+	//ret = spl_init();
 	if (ret) {
 		printf("spl_init() failed: %d\n", ret);
 		hang();
 	}
 
 	enable_tzc380();
+	// without this, no uart output
 	imx_iomux_v3_setup_multiple_pads(init_pads, ARRAY_SIZE(init_pads));
 
 	/* Adjust pmic voltage to 1.0V for 800M */
@@ -231,6 +272,14 @@ void board_init_f(ulong dummy)
 
 	/* DDR initialization */
 	spl_dram_init();
+
+	mx8mq_showclocks();
+
+  // FIXME: quick DDR test
+  for (int i=0; i<256; i++) {
+    *((uint8_t*)0x42000000+i) = i;
+  }
+  hexdump(0x42000000, 512);
 
 	board_init_r(NULL, 0);
 }
