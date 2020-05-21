@@ -28,7 +28,7 @@ void ddr_init(struct dram_timing_info *dram_timing)
 {
 	unsigned mstr2;
 	unsigned int tmp;
-	int imx8mq = is_imx8mq();
+	int imx8mq = is_imx8mq(); // seems to make no difference
 
 	debug("DDRINFO: start lpddr4 ddr init\n");
 	/* step 1: reset */
@@ -49,8 +49,9 @@ void ddr_init(struct dram_timing_info *dram_timing)
 	 * source 4 800MHz /4 = 200MHz
 	 */
 	clock_set_target_val(DRAM_APB_CLK_ROOT, CLK_ROOT_ON |
-			     CLK_ROOT_SOURCE_SEL(4) |
-			     CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV4));
+					 CLK_ROOT_SOURCE_SEL(4) |
+					 CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV4));
+	// seems unnecessary
 
 	/* disable iso */
 	reg32_write(0x303A00EC, 0x0000ffff); /* PGC_CPU_MAPPING */
@@ -58,6 +59,7 @@ void ddr_init(struct dram_timing_info *dram_timing)
 
 	debug("DDRINFO: cfg clk\n");
 	dram_pll_init(MHZ(imx8mq ? 800 : 750));
+	// doesn't matter
 
 	/*
 	 * release [0]ddr1_preset_n, [1]ddr1_core_reset_n,
