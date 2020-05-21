@@ -64,9 +64,8 @@ int board_mmc_getcd(struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	int gp_cd = cfg->gp_cd;
 
-	if (!gp_cd)
-		return 1;	/* eMMC always present */
-	return !gpio_get_value(gp_cd);
+  // force SD/MMC presence
+  return 1;
 }
 
 #if defined(CONFIG_MX51)
@@ -86,7 +85,8 @@ int board_mmc_init(bd_t *bis)
 	int ret;
 	u32 index = 0;
 
-	for (index = 0; index < CNT; index++) {
+  // init both controllers
+	for (index = 0; index < 2; index++) {
 		struct fsl_esdhc_cfg *cfg = &board_usdhc_cfg[index];
 
 		if (cfg->esdhc_base == BASE1) {
