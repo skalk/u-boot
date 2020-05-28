@@ -1348,7 +1348,6 @@
 	vqmmc-1-8-v;
 };
 
-#if 0
 &usdhc2 {
 	bus-width = <4>;
 	fsl,tuning-start-tap = <70>;
@@ -1366,11 +1365,6 @@
 	vqmmc-1-8-v;
 };
 
-&vpu {
-	regulator-supply = <&reg_vref_0v9>;
-	status = "okay";
-};
-#endif
 
 &wdog1 {
 	pinctrl-names = "default";
