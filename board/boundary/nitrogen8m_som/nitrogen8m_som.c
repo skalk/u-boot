@@ -258,6 +258,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 
 int board_detect_hdmi(struct display_info_t const *di)
 {
+  printf("board_detect_hdmi()");
 	return hdmi_hpd_status() ? 1 : 0;
 }
 
@@ -277,6 +278,8 @@ int board_init(void)
 	return 0;
 }
 
+// FIXME Reform: ideally we would save the env on the SD card, not the eMMC
+// but setting this to 1 crashes u-boot
 int board_mmc_get_env_dev(int devno)
 {
 	return 0;
@@ -320,13 +323,16 @@ void init_usb_clk(int usbno);
 
 static void set_env_vars(void)
 {
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (!env_get("board"))
-		env_set("board", "nitrogen8m_som");
+  printf("set_env_vars()");
+	env_set("board", "MNT Reform 2.0"); // "nitrogen8m_som");
 	env_set("soc", "imx8mq");
 	env_set("imx_cpu", get_imx_type((get_cpu_rev() & 0xFF000) >> 12));
 	env_set("uboot_defconfig", CONFIG_DEFCONFIG);
-#endif
+
+  // MNT Reform 2
+  env_set("fdt_addr", "0x50000000");
+  env_set("bootargs", "noinitrd root=/dev/mmcblk1p1 rootwait rw console=ttymxc0,115200 cma=512M no_console_suspend pci=nomsi");
+  env_set("bootcmd", "ext4load mmc 1 ${loadaddr} /Image; ext4load mmc 1 ${fdt_addr} /imx8mq-mnt-reform2.dtb; booti ${loadaddr} - ${fdt_addr}");
 }
 
 void board_set_default_env(void)
