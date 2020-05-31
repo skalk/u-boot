@@ -44,7 +44,7 @@ static iomux_v3_cfg_t const init_pads[] = {
 #define GP_LTK08_MIPI_EN		IMX_GPIO_NR(1, 1)
 	IMX8MQ_PAD_GPIO1_IO01__GPIO1_IO1 | MUX_PAD_CTRL(0x16),
 
-#define GPIRQ_GT911 			IMX_GPIO_NR(3, 12)
+#define GPIRQ_GT911				IMX_GPIO_NR(3, 12)
 	IMX8MQ_PAD_NAND_DATA06__GPIO3_IO12 | MUX_PAD_CTRL(0xd6),
 #define GP_GT911_RESET			IMX_GPIO_NR(3, 13)
 #define GP_ST1633_RESET			IMX_GPIO_NR(3, 13)
@@ -230,14 +230,13 @@ int board_usb_init(int index, enum usb_init_type init)
 		return ret;
 	}
 
-	if (index == 1) {
-		/* Release HUB reset */
+	/*if (index == 1) {
 #define GP_USB1_HUB_RESET	IMX_GPIO_NR(1, 14)
 		imx_iomux_v3_setup_pad(IMX8MQ_PAD_GPIO1_IO14__GPIO1_IO14 |
-				       MUX_PAD_CTRL(WEAK_PULLUP));
+							 MUX_PAD_CTRL(WEAK_PULLUP));
 		gpio_request(GP_USB1_HUB_RESET, "usb1_rst");
 		gpio_direction_output(GP_USB1_HUB_RESET, 1);
-	}
+  }*/
 
 	return 0;
 }
@@ -258,7 +257,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 
 int board_detect_hdmi(struct display_info_t const *di)
 {
-  printf("board_detect_hdmi()");
+	printf("board_detect_hdmi()");
 	return hdmi_hpd_status() ? 1 : 0;
 }
 
@@ -304,9 +303,9 @@ static void addserial_env(const char* env_var)
 
 #ifdef CONFIG_CMD_BMODE
 const struct boot_mode board_boot_modes[] = {
-        /* 4 bit bus width */
+				/* 4 bit bus width */
 	{"emmc0",	MAKE_CFGVAL(0x22, 0x20, 0x00, 0x10)},
-        {NULL,          0},
+				{NULL,					0},
 };
 #endif
 
@@ -315,7 +314,7 @@ static int fastboot_key_pressed(void)
 	//gpio_request(GP_FASTBOOT_KEY, "fastboot_key");
 	//gpio_direction_input(GP_FASTBOOT_KEY);
 	//return !gpio_get_value(GP_FASTBOOT_KEY);
-  return 0;
+	return 0;
 }
 
 void board_late_mmc_env_init(void);
@@ -323,16 +322,17 @@ void init_usb_clk(int usbno);
 
 static void set_env_vars(void)
 {
-  printf("set_env_vars()");
+	printf("set_env_vars()");
 	env_set("board", "MNT Reform 2.0"); // "nitrogen8m_som");
 	env_set("soc", "imx8mq");
 	env_set("imx_cpu", get_imx_type((get_cpu_rev() & 0xFF000) >> 12));
 	env_set("uboot_defconfig", CONFIG_DEFCONFIG);
 
-  // MNT Reform 2
-  env_set("fdt_addr", "0x50000000");
-  env_set("bootargs", "noinitrd root=/dev/mmcblk1p1 rootwait rw console=ttymxc0,115200 cma=512M no_console_suspend pci=nomsi");
-  env_set("bootcmd", "ext4load mmc 1 ${loadaddr} /Image; ext4load mmc 1 ${fdt_addr} /imx8mq-mnt-reform2.dtb; booti ${loadaddr} - ${fdt_addr}");
+	// MNT Reform 2
+	env_set("fdt_addr", "0x50000000");
+	env_set("bootargs", "noinitrd root=/dev/mmcblk1p1 rootwait rw console=ttymxc0,115200 console=tty1 cma=512M no_console_suspend pci=nomsi");
+	env_set("bootcmd", "ext4load mmc 1 ${loadaddr} /Image; ext4load mmc 1 ${fdt_addr} /imx8mq-mnt-reform2.dtb; booti ${loadaddr} - ${fdt_addr}");
+	env_set("bootdelay", "1");
 }
 
 void board_set_default_env(void)
@@ -347,6 +347,15 @@ void board_set_default_env(void)
 int board_late_init(void)
 {
 	set_env_vars();
+
+  // Reform: Reset USB hub
+  imx_iomux_v3_setup_pad(IMX8MQ_PAD_GPIO1_IO14__GPIO1_IO14 | MUX_PAD_CTRL(WEAK_PULLUP));
+  gpio_request(IMX_GPIO_NR(1, 14), "usb1_rst");
+  gpio_direction_output(IMX_GPIO_NR(1, 14), 1);
+  gpio_set_value(IMX_GPIO_NR(1, 14), 0);
+  mdelay(10);
+  gpio_set_value(IMX_GPIO_NR(1, 14), 1);
+  
 #if defined(CONFIG_USB_FUNCTION_FASTBOOT) || defined(CONFIG_CMD_DFU)
 	addserial_env("serial#");
 	if (fastboot_key_pressed()) {
