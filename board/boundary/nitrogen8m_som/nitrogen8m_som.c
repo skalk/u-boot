@@ -331,7 +331,8 @@ static void set_env_vars(void)
 	// MNT Reform 2
 	env_set("fdt_addr", "0x50000000");
 	env_set("bootargs", "noinitrd root=/dev/mmcblk1p1 rootwait rw console=ttymxc0,115200 console=tty1 cma=512M no_console_suspend pci=nomsi");
-	env_set("bootcmd", "ext4load mmc 1 ${loadaddr} /Image; ext4load mmc 1 ${fdt_addr} /imx8mq-mnt-reform2.dtb; booti ${loadaddr} - ${fdt_addr}");
+	//env_set("bootcmd", "ext4load mmc 1 ${loadaddr} /Image; ext4load mmc 1 ${fdt_addr} /imx8mq-mnt-reform2.dtb; booti ${loadaddr} - ${fdt_addr}");
+	env_set("bootcmd", "dhcp; source");
 	env_set("bootdelay", "1");
 }
 
